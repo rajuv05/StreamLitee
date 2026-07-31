@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.streamlite.app-mergeDebugResources-73:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\rajuv\\.gradle\\caches\\8.10.2\\transforms\\684b96aada12b7a2c4d328669a817f61\\transformed\\material-1.12.0\\res\\values-h550dp-port-v13\\values-h550dp-port-v13.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "64",
+                        "endOffsets": "115"
+                    }
+                }
+            ]
+        }
+    ]
+}
