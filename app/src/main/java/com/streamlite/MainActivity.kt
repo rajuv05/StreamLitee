@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.streamlite.stream.StreamingService
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+  private val viewModel: StreamViewModel by viewModels()
   private var pendingStart: StreamViewModel.StartRequest? = null
   private val projectionRequest = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
     val request = pendingStart
@@ -37,7 +39,7 @@ class MainActivity : ComponentActivity() {
     super.onCreate(savedInstanceState)
     enableEdgeToEdge()
     lifecycleScope.launch { StreamViewModel.starts.collect(::requestProjection) }
-    setContent { StreamLiteApp() }
+    setContent { StreamLiteApp(viewModel) }
   }
 
   private fun requestProjection(request: StreamViewModel.StartRequest) {

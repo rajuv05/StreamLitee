@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.streamlite.app-mergeDebugResources-74:/values-v21/values-v21.xml",
+            "outputFile": "com.streamlite.app-mergeDebugResources-77:/values-v21/values-v21.xml",
             "map": [
                 {
                     "source": "C:\\Users\\rajuv\\.gradle\\caches\\9.3.0\\transforms\\74ce759d464da6f68ca3a6493195f31f\\workspace\\transformed\\core-1.15.0\\res\\values-v21\\values-v21.xml",

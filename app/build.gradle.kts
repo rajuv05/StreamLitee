@@ -36,6 +36,8 @@ kotlin {
 }
 
 dependencies {
+  implementation("androidx.camera:camera-core:1.4.1")
+  implementation("androidx.compose.remote:remote-creation-core:1.0.0-alpha16")
   implementation("androidx.core:core-ktx:1.15.0")
   implementation("androidx.activity:activity-compose:1.10.1")
   implementation(platform("androidx.compose:compose-bom:2024.04.01"))
@@ -48,13 +50,16 @@ dependencies {
   implementation("androidx.datastore:datastore-preferences:1.1.2")
   implementation("androidx.core:core-splashscreen:1.0.1")
   implementation("androidx.lifecycle:lifecycle-service:2.8.7")
+  implementation("androidx.room3:room3-external-antlr:3.0.1")
   implementation("com.google.android.material:material:1.12.0")
 
   implementation("com.google.dagger:hilt-android:2.57.2")
+  implementation("com.google.mlkit:genai-common:1.0.0-beta4")
   kapt("com.google.dagger:hilt-compiler:2.57.2")
 
   implementation("com.github.pedroSG94.RootEncoder:library:2.7.0")
   implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+  implementation("androidx.compose.material:material-icons-extended")
 
   debugImplementation("androidx.compose.ui:ui-tooling")
 }
