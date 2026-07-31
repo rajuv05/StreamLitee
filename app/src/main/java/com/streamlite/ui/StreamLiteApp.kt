@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.streamlite.core.AudioSource
-import com.streamlite.core.StreamConfig
 import com.streamlite.core.StreamPhase
 import com.streamlite.core.StreamStats
 import com.streamlite.stream.StreamingService
@@ -72,8 +72,14 @@ fun StreamLiteApp(viewModel: StreamViewModel = hiltViewModel()) {
   }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Selector(label: String, selected: String, options: List<String>, select: (String) -> Unit) {
+private fun Selector(
+  label: String,
+  selected: String,
+  options: List<String>,
+  select: (String) -> Unit
+) {
   var expanded by remember { mutableStateOf(false) }
   ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
     OutlinedTextField(selected, {}, readOnly = true, label = { Text(label) }, trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) }, modifier = Modifier.menuAnchor().fillMaxWidth())

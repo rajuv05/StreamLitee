@@ -1,13 +1,12 @@
 package com.streamlite.ui;
 
 import androidx.compose.foundation.layout.Arrangement;
+import androidx.compose.material3.ExperimentalMaterial3Api;
 import androidx.compose.material3.ExposedDropdownMenuDefaults;
 import androidx.compose.runtime.Composable;
 import androidx.compose.ui.Modifier;
 import androidx.compose.ui.text.input.PasswordVisualTransformation;
-import androidx.lifecycle.compose.collectAsStateWithLifecycle;
 import com.streamlite.core.AudioSource;
-import com.streamlite.core.StreamConfig;
 import com.streamlite.core.StreamPhase;
 import com.streamlite.core.StreamStats;
 import com.streamlite.stream.StreamingService;
@@ -23,6 +22,7 @@ public final class StreamLiteAppKt {
     com.streamlite.ui.StreamViewModel viewModel) {
     }
     
+    @kotlin.OptIn(markerClass = {androidx.compose.material3.ExperimentalMaterial3Api.class})
     @androidx.compose.runtime.Composable()
     private static final void Selector(java.lang.String label, java.lang.String selected, java.util.List<java.lang.String> options, kotlin.jvm.functions.Function1<? super java.lang.String, kotlin.Unit> select) {
     }

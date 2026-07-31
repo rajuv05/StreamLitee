@@ -129,7 +129,10 @@ class StreamingService : Service(), ConnectChecker {
         AppLogger.info("Creating hardware H.264 encoder ${width}x${height}@${selectedFps} ${bitrate}bps")
         val audioSource = createAudioSource(audio, mediaProjection)
         val generic = GenericStream(applicationContext, this@StreamingService, NoVideoSource(), audioSource)
-        generic.forceCodecType(CodecUtil.CodecType.HARDWARE, CodecUtil.CodecType.HARDWARE)
+        generic.forceCodecType(
+          CodecUtil.CodecType.HARDWARE,
+          CodecUtil.CodecType.FIRST_COMPATIBLE_FOUND
+        )
         generic.getGlInterface().setForceRender(true, selectedFps)
         generic.setFpsListener { fps -> onFps(fps) }
         check(generic.prepareVideo(width, height, bitrate, selectedFps, 2, 0)) { "Hardware H.264 encoder unavailable for this configuration." }

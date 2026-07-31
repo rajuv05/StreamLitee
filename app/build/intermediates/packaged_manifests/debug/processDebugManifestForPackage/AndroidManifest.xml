@@ -30,6 +30,7 @@
         android:extractNativeLibs="false"
         android:label="StreamLite"
         android:supportsRtl="true"
+        android:testOnly="true"
         android:theme="@style/Theme.StreamLite" >
         <service
             android:name="com.streamlite.stream.StreamingService"

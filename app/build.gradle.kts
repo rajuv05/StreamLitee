@@ -54,6 +54,7 @@ dependencies {
   kapt("com.google.dagger:hilt-compiler:2.57.2")
 
   implementation("com.github.pedroSG94.RootEncoder:library:2.7.0")
+  implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
   debugImplementation("androidx.compose.ui:ui-tooling")
 }

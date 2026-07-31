@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.streamlite.app-mergeDebugResources-73:/values-watch-v21/values-watch-v21.xml",
+            "outputFile": "com.streamlite.app-mergeDebugResources-74:/values-watch-v21/values-watch-v21.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\rajuv\\.gradle\\caches\\8.10.2\\transforms\\e009087aae528a619417fc30df2a2076\\transformed\\appcompat-1.6.1\\res\\values-watch-v21\\values-watch-v21.xml",
+                    "source": "C:\\Users\\rajuv\\.gradle\\caches\\9.3.0\\transforms\\797e8870749451dc3e725ec0001a259c\\workspace\\transformed\\appcompat-1.6.1\\res\\values-watch-v21\\values-watch-v21.xml",
                     "from": {
                         "startLines": "2,6,10",
                         "startColumns": "4,4,4",
