@@ -6,6 +6,7 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.media.MediaCodecInfo
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
@@ -21,6 +22,7 @@ import com.pedro.encoder.input.sources.video.NoVideoSource
 import com.pedro.encoder.input.sources.video.ScreenSource
 import com.pedro.encoder.utils.CodecUtil
 import com.pedro.library.generic.GenericStream
+import com.pedro.library.util.BitrateAdapter
 import com.streamlite.core.AppLogger
 import com.streamlite.core.AudioSource
 import com.streamlite.core.StreamConfig
@@ -54,6 +56,7 @@ class StreamingService : Service(), ConnectChecker {
     val stats: StateFlow<StreamStats> = mutableStats.asStateFlow()
 
     fun start(context: Context, resultCode: Int, projectionData: Intent, config: StreamConfig) {
+      AppLogger.info("Starting StreamingService with config: $config")
       val intent = Intent(context, StreamingService::class.java).apply {
         action = ACTION_START
         putExtra(EXTRA_RESULT_CODE, resultCode)
@@ -129,16 +132,63 @@ class StreamingService : Service(), ConnectChecker {
         AppLogger.info("Creating hardware H.264 encoder ${width}x${height}@${selectedFps} ${bitrate}bps")
         val audioSource = createAudioSource(audio, mediaProjection)
         val generic = GenericStream(applicationContext, this@StreamingService, NoVideoSource(), audioSource)
+        
+        // Force professional BT.709 color standard for accurate gaming colors.
+        generic.forceBt709Color(true)
+        
+        // Optimization 3: Force Hardware CBR Priority to ensure the most stable bitrate mode is selected.
+        // We use FIRST_COMPATIBLE_FOUND for audio to avoid the "AAC encoder unavailable" regression.
         generic.forceCodecType(
-          CodecUtil.CodecType.HARDWARE,
-          CodecUtil.CodecType.FIRST_COMPATIBLE_FOUND
+          CodecUtil.CodecType.CBR_PRIORITY,
+          CodecUtil.CodecType.FIRST_COMPATIBLE_FOUND,
         )
+        
         generic.getGlInterface().setForceRender(true, selectedFps)
         generic.setFpsListener { fps -> onFps(fps) }
-        check(generic.prepareVideo(width, height, bitrate, selectedFps, 2, 0)) { "Hardware H.264 encoder unavailable for this configuration." }
+        
+        // Optimization 2: Use AVC High Profile and Level 5.2 to leverage Adreno VPU capabilities.
+        // High Profile provides better compression efficiency and stability for 1080p60 on Snapdragon 8 Elite.
+        val profile = MediaCodecInfo.CodecProfileLevel.AVCProfileHigh
+        val level = MediaCodecInfo.CodecProfileLevel.AVCLevel52
+        
+        check(generic.prepareVideo(width, height, bitrate, selectedFps, 2, 0, profile, level)) { 
+            "Hardware H.264 High Profile encoder unavailable for this configuration."
+        }
+        
         check(generic.prepareAudio(48_000, true, 128_000, echoCanceler = audio != AudioSource.INTERNAL, noiseSuppressor = audio != AudioSource.INTERNAL)) {
           "AAC audio encoder or selected audio source is unavailable."
         }
+        
+        // Optimization 1: Increase network packet cache to 1024 (from default 400).
+        // This provides a larger safety margin for high-bitrate data during minor network jitters.
+        generic.getStreamClient().resizeCache(1024)
+        // Increase RTMP chunk size to 4096 for better transmission efficiency.
+        generic.getStreamClient().setWriteChunkSize(4096)
+        // Smooth out bitrate adjustments to prevent aggressive oscillations.
+        generic.getStreamClient().setBitrateExponentialFactor(0.2f)
+        
+        // Initialize slow-acting Bitrate Adapter (5% increments/decrements)
+        // BUG FIX: The previous logic was capping bitrate during low-motion scenes.
+        // NEW LOGIC: Only decrease on congestion; recover to MAX when clear.
+        var currentTargetBitrate = bitrate
+        val bitrateAdapter = BitrateAdapter { adaptedBitrate ->
+            if (generic.isStreaming && (adaptedBitrate != currentTargetBitrate)) {
+                currentTargetBitrate = adaptedBitrate
+                AppLogger.info("Adapting bitrate to: $adaptedBitrate bps")
+                generic.setVideoBitrateOnFly(adaptedBitrate)
+            }
+        }.apply {
+            setMaxBitrate(bitrate)
+            setDecreaseRange(5f) // 5% decrease per interval on congestion
+            setIncreaseRange(10f) // 10% recovery per interval when clear
+        }
+
+        AppLogger.info("--- Encoder Initialization Request ---")
+        AppLogger.info("Resolution: ${width}x${height}")
+        AppLogger.info("FPS: $selectedFps")
+        AppLogger.info("Requested Bitrate: $bitrate bps")
+        AppLogger.info("---------------------------------------")
+
         AppLogger.info("Creating MediaProjection virtual display")
         generic.changeVideoSource(ScreenSource(applicationContext, mediaProjection))
         stream = generic
@@ -147,8 +197,14 @@ class StreamingService : Service(), ConnectChecker {
         ticker = serviceScope.launch {
           while (stream?.isStreaming == true) {
             delay(1_000)
-            val previous = mutableStats.value
-            mutableStats.value = previous.copy(elapsedSeconds = (System.currentTimeMillis() - startedAt) / 1_000)
+            val currentStats = mutableStats.value
+            mutableStats.value = currentStats.copy(elapsedSeconds = (System.currentTimeMillis() - startedAt) / 1_000)
+            
+            // Perform slow adaptive bitrate adjustment based on congestion
+            val hasCongestion = generic.getStreamClient().hasCongestion(20f)
+            // If no congestion, we want to aim for MAX bitrate, not current output bitrate.
+            val inputBitrateForAdapter = if (hasCongestion) currentStats.currentBitrateBps else bitrate.toLong()
+            bitrateAdapter.adaptBitrate(inputBitrateForAdapter, hasCongestion)
           }
         }
         AppLogger.info("Connecting RTMPS")

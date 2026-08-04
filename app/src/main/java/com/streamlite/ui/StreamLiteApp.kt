@@ -352,7 +352,7 @@ private fun ConfigSection(
     "4K" to Pair(3840, 2160)
   )
   val optionsFps = listOf(24, 30, 60, 120)
-  val optionsBitrate = listOf(4, 8, 12, 20, 30)
+  val optionsBitrate = listOf(4, 8, 12, 18, 20, 30)
   val audioOptions = listOf(
     AudioSource.INTERNAL to "Internal",
     AudioSource.MICROPHONE to "Microphone",

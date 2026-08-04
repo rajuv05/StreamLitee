@@ -1,0 +1,25 @@
+# Android
+.gradle/
+build/
+**/build/
+
+# Android Studio
+.idea/
+local.properties
+captures/
+
+# Generated
+*.iml
+
+# APKs
+*.apk
+*.aab
+
+# Logs
+*.log
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
